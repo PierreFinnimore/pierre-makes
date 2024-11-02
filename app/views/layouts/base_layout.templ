@@ -1,0 +1,29 @@
+package layouts
+
+import "github.com/anthdm/superkit/view"
+
+
+
+templ BaseLayout() {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<title>Pierre Makes</title>
+			<link rel="icon" type="image/x-icon" href={ view.Asset("favicon.ico") }/>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<meta name="description" content="Pierre's Personal Site"/>
+			<link rel="stylesheet" href={ view.Asset("styles.css") }/>
+			<script src={ view.Asset("index.js") }></script>
+			<!-- Alpine Plugins -->
+			<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+			<!-- HTMX -->
+			<script src="https://unpkg.com/htmx.org@1.9.9" defer></script>
+			<script src="https://unpkg.com/htmx-ext-preload@2.0.1/preload.js" defer></script>
+		</head>
+		<body hx-ext="preload" x-data="{theme: 'dark'}" :class="theme" lang="en">
+			{ children... }
+		</body>
+	</html>
+}

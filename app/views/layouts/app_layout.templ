@@ -1,0 +1,15 @@
+package layouts
+
+import "pierre/app/views/components"
+
+templ App() {
+	@BaseLayout() {
+		<div class="min-h-screen flex flex-col scrollbar-adjustment">
+			@components.Navigation()
+			<div id="main-content" class="max-w-3xl container mx-auto flex-grow">
+				{ children... }
+			</div>
+			<footer class="max-w-3xl container mx-auto py-2">What a lovely footer.</footer>
+		</div>
+	}
+}

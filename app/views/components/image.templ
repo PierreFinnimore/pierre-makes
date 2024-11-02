@@ -1,0 +1,26 @@
+package components
+
+import (
+	"strconv"
+	"github.com/anthdm/superkit/view"
+)
+
+css aspectRatio(width int, height int) {
+	aspect-ratio: { strconv.Itoa(width) + "/" + strconv.Itoa(height) };
+}
+
+templ Image(src string, alt string, width int, height int, class string) {
+	<div class={ class, "bg-muted", "mb-8", aspectRatio(width, height) } :class="loading ? 'animate-pulse' : ''" x-data="{ loading: true }">
+		<img
+			src={ view.Asset(src) }
+			alt={ alt }
+			width={ strconv.Itoa(width) }
+			height={ strconv.Itoa(height) }
+			x-transition
+			x-cloak
+			x-show="!loading"
+			x-init="loading = !$el.complete"
+			@load="loading = false"
+		/>
+	</div>
+}

@@ -1,0 +1,19 @@
+package components
+
+templ NavLink(href templ.SafeURL, label string) {
+	<a  href={ href } class="btn btn-primary" @click="selectedHref = $el.getAttribute('href')" :class="selectedHref !== $el.getAttribute('href') ? '' : 'disabled'">{ label }</a>
+}
+
+templ Navigation() {
+	<nav class="py-3">
+		<div preload="mouseover" preload-images="true" id="nav-container" hx-preserve="true" hx-boost="true" class="max-w-3xl container mx-auto flex font-semibold flex-wrap gap-4" x-data="{ selectedHref: window.location.pathname }">
+			@NavLink("/", "Pierre Makes")
+			@NavLink("/art", "Art")
+			@NavLink("/thoughts", "Thoughts")
+			// <a href="/tools" class="btn btn-primary">Tools</a>
+
+			@ThemeSwitcher()
+	
+		</div>
+	</nav>
+}

@@ -1,0 +1,18 @@
+package landing
+
+import (
+	"pierre/app/views/components"
+	"pierre/app/views/layouts"
+)
+
+templ Index() {
+	@layouts.App() {
+		<div>
+			<h1>Pierre Makes</h1>
+			<p>
+				Check out some of the stuff I've made!
+			</p>
+			@components.Image("self.jpg", "A self portrait", 506, 922, "small-image")
+		</div>
+	}
+}

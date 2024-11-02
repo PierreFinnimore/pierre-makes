@@ -1,0 +1,28 @@
+package thoughts
+
+import (
+	"pierre/app/views/layouts"
+	"pierre/app/views/components"
+)
+
+templ Thoughts() {
+	@layouts.App() {
+		<h1>Thoughts</h1>
+		<p>Here are some things I've thought.</p>
+		<h2>Dissertation</h2>
+		<p>
+			During my MSc in Computer Science with Speech and Language Processing, my final project was to produce a system for analysing writing quality.
+		</p>
+		<p>
+			Interestingly, high writing quality was correlated with shorter words, but longer sentences.
+		</p>
+		<p>
+			From a computational perspective, simpler models were remarkably effective at modeling. There is something valuable about models that are not just powerful, but also interpretable in their mechanism.
+		</p>
+		<p>
+			Here's a poster I produced to summarise my findings:
+		</p>
+		@components.Image("DissertationPoster01.png", "The first page of my dissertation poster", 1281, 721, "large-image")
+		@components.Image("DissertationPoster02.png", "The second page of my dissertation poster", 1281, 721, "large-image")
+	}
+}
