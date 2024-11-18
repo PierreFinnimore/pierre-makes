@@ -53,6 +53,8 @@ watch-tool:
 copy-static-files:
 	copy .\app\assets\*.jpg .\public\assets
 	copy .\app\assets\*.png .\public\assets
+	copy .\app\assets\*.ico .\public\assets
+
 
 
 # watch for any js or css change in the assets/ folder, then reload the browser via templ proxy.
