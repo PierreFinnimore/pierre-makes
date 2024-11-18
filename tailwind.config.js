@@ -49,7 +49,7 @@ module.exports = {
       },
       transitionProperty: {
         performance:
-          "opacity, color, background-color, border-color, text-decoration-color, fill, stroke, transform",
+          "opacity, color, background-color, text-decoration-color, transform",
       },
       borderRadius: {
         lg: "var(--radius)",

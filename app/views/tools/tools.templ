@@ -1,0 +1,14 @@
+package tools
+
+import (
+	"pierre/app/views/layouts"
+	"pierre/app/views/components"
+)
+
+templ Tools() {
+	@layouts.App() {
+		<h1>Tools</h1>
+		<p>Here are some tools I've made!</p>
+        @components.Die()
+	}
+}

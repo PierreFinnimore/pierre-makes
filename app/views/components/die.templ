@@ -1,0 +1,53 @@
+package components
+
+templ Die() {
+    <h2>Dice Roller</h2>
+    <div x-data="dice()">
+        <div class="flex flex-wrap items-end gap-2 mb-4" x-data="{ dieMax: 6, count: 1 }">
+            <div class="flex flex-col">
+                <label for="die-count" class="py-2">Count</label>
+                <input id="die-count" class="border-2 text-black py-2 px-2" @input="count = count > 100 ? 100 : count" x-model="count" type="number" min="1" max="100"> 
+            </div>
+            <div class="flex flex-col">
+                <label for="side-count" class="py-2">Sides</label>
+                <input id="side-count" class="border-2 text-black py-2 px-2"  x-model="dieMax" type="number" min="2" max="100000"> 
+            </div>
+            <button aria-label="Add a die" @click="addDice(dieMax, count)" class="btn btn-primary">Add</button>
+            <button aria-label="Roll all the dice" :disabled="rolledDice.length === 0" @click="rollDice()" class="btn btn-primary">Roll All</button>
+            <button aria-label="Save Dice Config" :disabled="rolledDice.length === 0" @click="getWindowUrl()" x-text="copyText" class="min-w-24 btn btn-primary"></button>
+            <button aria-label="Delete all the dice" :disabled="rolledDice.length === 0" @click="confirm('Are you sure?') ? deleteAllDice() : ''" class="btn btn-danger">Delete All</button>
+        </div> 
+
+        <div class="flex flex-wrap items-end gap-2 mb-4">
+            <div class="flex flex-col">
+                <label for="dice-total" class="py-2">Total</label>
+                <input readonly id="dice-total" class="border-2 text-black py-2 px-2"  x-model="sumDice()"> 
+            </div>
+
+            <div class="flex flex-col">
+                <label for="dice-mean" class="py-2">Mean</label>
+                <input readonly id="dice-mean" class="border-2 text-black py-2 px-2"  x-model="meanDice()"> 
+            </div>
+
+            <div class="flex flex-col">
+                <label for="dice-mode" class="py-2">Mode</label>
+                <input readonly id="dice-mode" class="border-2 text-black py-2 px-2"  x-model="modeDice()"> 
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+            <template x-for="(die, index) in rolledDice">
+                <div :class="die.isRolling ? 'rolling' : ''" class="relative text-white" >
+                    <button  @click="rollDie(index)" class="w-14 h-14 bg-blue-800 rounded flex items-center justify-center font-bold text-lg" x-text="die.value"></button>
+                    <div class="absolute top-0 left-1 text-xs" x-text="`d${die.max}`"></div>
+                    <button @click="removeDie(index)" class="absolute top-0 right-1 text-xs" aria-label="Delete Dice">x</button>
+                </div>
+            </template>
+        </div>
+
+
+
+     
+    </div>
+    
+}

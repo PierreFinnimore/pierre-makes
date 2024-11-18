@@ -18,6 +18,7 @@ import (
 func InitializeMiddleware(router *chi.Mux) {
 	router.Use(chimiddleware.Logger)
 	router.Use(chimiddleware.Recoverer)
+	router.Use(chimiddleware.Compress(5))
 	router.Use(middleware.WithRequest)
 }
 
@@ -39,6 +40,8 @@ func InitializeRoutes(router *chi.Mux) {
 		app.Get("/", kit.Handler(handlers.HandleLandingIndex))
 		app.Get("/art", kit.Handler(handlers.HandleArtIndex))
 		app.Get("/thoughts", kit.Handler(handlers.HandleThoughtsIndex))
+		app.Get("/tools", kit.Handler(handlers.HandleToolsIndex))
+		app.Get("/robots.txt", kit.Handler(handlers.HandleRobotsTxt))
 	})
 
 	// Authenticated routes
