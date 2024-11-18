@@ -6,7 +6,7 @@ endif
 
 ifeq ($(OS),Windows_NT)
 	MAIN_PATH = /tmp/bin/main.exe
-	SYNC_ASSETS_COMMAND =	go run github.com/makiuchi-d/arelo@v1.13.1 \
+	SYNC_ASSETS_COMMAND = set GOOS=windows&&set GOARCH=amd64&&go run github.com/makiuchi-d/arelo@v1.13.1 \
 	--target "./public" \
 	--pattern "**/*.js" \
 	--pattern "**/*.css" \
@@ -14,7 +14,7 @@ ifeq ($(OS),Windows_NT)
 	-- templ generate --notify-proxy
 else
 	MAIN_PATH = tmp/bin/main
-	SYNC_ASSETS_COMMAND =	go run github.com/cosmtrek/air@v1.51.0 \
+	SYNC_ASSETS_COMMAND = go run github.com/cosmtrek/air@v1.51.0 \
 	--build.cmd "templ generate --notify-proxy" \
 	--build.bin "true" \
 	--build.delay "100" \
@@ -31,7 +31,7 @@ templ:
 
 # run air to detect any go file changes to re-build and re-run the server.
 server:
-	@go run github.com/cosmtrek/air@v1.51.0 \
+	@set GOOS=windows&&set GOARCH=amd64&&go run github.com/cosmtrek/air@v1.51.0 \
 	--build.cmd "go build --tags dev -o ${MAIN_PATH} ./cmd/app/" --build.bin "${MAIN_PATH}" --build.delay "100" \
 	--build.exclude_dir "node_modules" \
 	--build.include_ext "go" \
@@ -46,10 +46,14 @@ watch-assets:
 watch-esbuild:
 	npx esbuild app/assets/index.js --bundle --outdir=public/assets --watch
 
+watch-tool:
+	npx esbuild app/assets/die.js --bundle --outdir=public/assets --watch
 
-copy-image-files:
+
+copy-static-files:
 	copy .\app\assets\*.jpg .\public\assets
 	copy .\app\assets\*.png .\public\assets
+
 
 # watch for any js or css change in the assets/ folder, then reload the browser via templ proxy.
 sync_assets:
@@ -59,14 +63,22 @@ sync_assets:
 
 # start the application in development
 dev:
-	@make -j5 templ server watch-assets watch-esbuild sync_assets
+	@make -j7 copy-static-files templ server watch-assets watch-esbuild watch-tool sync_assets
 
 # build the application for production. This will compile your app
 # to a single binary with all its assets embedded.
 build:
+	@make copy-static-files
 	@npx tailwindcss -i app/assets/app.css -o ./public/assets/styles.css
-	@npx esbuild app/assets/index.js --bundle --outdir=public/assets
+	@npx esbuild app/assets/*.js --bundle --outdir=public/assets
 	@go build -o bin/app_prod.exe cmd/app/main.go
+	@echo "compiled you application with all its assets to a single binary => .\bin\app_prod.exe"
+
+build-linux:
+	@make copy-static-files
+	@npx tailwindcss -i app/assets/app.css -o ./public/assets/styles.css
+	@npx esbuild app/assets/*.js --bundle --outdir=public/assets
+	@set GOOS=linux&& set GOARCH=amd64&& go build -o bin/app_prod cmd/app/main.go
 	@echo "compiled you application with all its assets to a single binary => bin/app_prod"
 
 db-status:
