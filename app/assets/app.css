@@ -64,14 +64,25 @@
 }
 
 .btn {
-  @apply transition-all ease-in-out font-bold py-2 px-4 border-b-4 border-t-4 border-t-background;
+  transition: border-width 0.1s ease-in-out, color 0.1s ease-in-out,
+    background-color 0.1s ease-in-out;
+
+  @apply bg-muted text-muted-foreground font-bold py-2 px-4 border-b-4 border-t-4 border-t-background;
 }
-.btn:not(.disabled) {
+.btn:not(:disabled, .disabled) {
   @apply hover:border-b-8 hover:border-t-0 focus:border-b-8 focus:border-t-0 active:border-b-0 active:border-t-8;
 }
 
-.btn-primary {
+.btn-primary:not(:disabled, .disabled) {
   @apply bg-green-700 hover:bg-green-600 text-white font-bold  border-b-green-900;
+}
+.btn-danger:not(:disabled, .disabled) {
+  @apply bg-red-700 hover:bg-red-600 text-white font-bold  border-b-red-900;
+}
+
+:disabled,
+.disabled {
+  @apply cursor-default pointer-events-none border-b-0 border-t-8;
 }
 
 p {
@@ -85,7 +96,7 @@ h3 {
 }
 
 h1 {
-  @apply mb-4 text-4xl  leading-none md:text-5xl lg:text-6xl;
+  @apply mt-2 mb-4 text-4xl  leading-none md:text-5xl lg:text-6xl;
 }
 
 h2 {
@@ -110,6 +121,15 @@ img {
   padding-left: calc(100vw - 100%);
 }
 
-.disabled {
-  @apply bg-muted text-muted-foreground cursor-default pointer-events-none border-b-0 border-t-8;
+.rolling {
+  animation: spin 0.15s ease-out forwards;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
