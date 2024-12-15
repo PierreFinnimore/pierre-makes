@@ -4,6 +4,7 @@ import (
 	v "github.com/anthdm/superkit/validate"
 	"pierre/app/views/layouts"
 	"pierre/app/views/components"
+	e "pierre/app/errorInputs"
 )
 
 type SignupIndexPageData struct {
@@ -39,14 +40,14 @@ templ SignupForm(values SignupFormValues, errors v.Errors) {
 	<form hx-post="/signup" class="flex flex-col gap-4">
 		<div class="flex flex-col gap-1">
 			<label for="email">Email *</label>
-			<input { inputAttrs(errors.Has("email"))... } name="email" id="email" value={ values.Email }/>
+			<input { e.InputAttrs(errors.Has("email"))... } name="email" id="email" value={ values.Email }/>
 			if errors.Has("email") {
 				<div class="text-red-500 text-xs">{ errors.Get("email")[0] }</div>
 			}
 		</div>
 		<div class="flex flex-col gap-1">
 			<label for="firstName">First Name *</label>
-			<input { inputAttrs(errors.Has("firstName"))... } name="firstName" id="firstName" value={ values.FirstName }/>
+			<input { e.InputAttrs(errors.Has("firstName"))... } name="firstName" id="firstName" value={ values.FirstName }/>
 			if errors.Has("fistName") {
 				<ul>
 					for _, err := range errors.Get("firstName") {
@@ -57,7 +58,7 @@ templ SignupForm(values SignupFormValues, errors v.Errors) {
 		</div>
 		<div class="flex flex-col gap-1">
 			<label for="lastName">Last Name *</label>
-			<input { inputAttrs(errors.Has("lastName"))... } name="lastName" id="lastName" value={ values.LastName }/>
+			<input { e.InputAttrs(errors.Has("lastName"))... } name="lastName" id="lastName" value={ values.LastName }/>
 			if errors.Has("lastName") {
 				<ul>
 					for _, err := range errors.Get("lastName") {
@@ -68,7 +69,7 @@ templ SignupForm(values SignupFormValues, errors v.Errors) {
 		</div>
 		<div class="flex flex-col gap-1">
 			<label for="password">Password *</label>
-			<input { inputAttrs(errors.Has("password"))... } type="password" name="password" id="password"/>
+			<input { e.InputAttrs(errors.Has("password"))... } type="password" name="password" id="password"/>
 			if errors.Has("password") {
 				<ul>
 					for _, err := range errors.Get("password") {
@@ -79,7 +80,7 @@ templ SignupForm(values SignupFormValues, errors v.Errors) {
 		</div>
 		<div class="flex flex-col gap-1">
 			<label for="passwordConfirm">Confirm Password *</label>
-			<input { inputAttrs(errors.Has("passwordConfirm"))... } type="password" name="passwordConfirm" id="passwordConfirm"/>
+			<input { e.InputAttrs(errors.Has("passwordConfirm"))... } type="password" name="passwordConfirm" id="passwordConfirm"/>
 			if errors.Has("passwordConfirm") {
 				<div class="text-red-500 text-xs">{ errors.Get("passwordConfirm")[0] }</div>
 			}

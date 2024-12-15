@@ -8,7 +8,7 @@ import (
 )
 
 func HandleArtIndex(kit *kit.Kit) error {
-	poems := []types.Poem{
+	poems := []types.PersonalPoem{
 		{
 			Title: "Between",
 			Paragraphs: []string{
@@ -60,7 +60,7 @@ I am the wall; I am the dam.`,
 		},
 	}
 
-	stories := []types.Poem{
+	stories := []types.PersonalPoem{
 		{
 			Title: "Caving",
 			Paragraphs: []string{

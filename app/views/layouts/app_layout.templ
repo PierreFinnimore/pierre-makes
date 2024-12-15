@@ -9,7 +9,15 @@ templ App() {
 			<div id="main-content" class="max-w-3xl container mx-auto flex-grow">
 				{ children... }
 			</div>
-			<footer class="border-t-2 mt-4"> <div class="max-w-3xl container mx-auto py-2"> What a lovely footer. </div></footer>
+			<footer class="border-t-2 mt-4"><div class="max-w-3xl container mx-auto py-2">What a lovely footer. </div></footer>
 		</div>
+	}
+}
+
+templ ConsquencesLayout() {
+	@App() {
+		<h1>Poetry Consequences</h1>
+		<p>A game for collaboratively writing poems!</p>
+		{ children... }
 	}
 }

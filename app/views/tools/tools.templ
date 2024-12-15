@@ -9,6 +9,9 @@ templ Tools() {
 	@layouts.App() {
 		<h1>Tools</h1>
 		<p>Here are some tools I've made!</p>
-        @components.Die()
+		<h2>Poetry Consequences</h2>
+		@components.NavLink("/poetry", "Play Game")
+		<hr class="mt-4 mb-4"/>
+		@components.Die()
 	}
 }

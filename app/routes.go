@@ -42,6 +42,19 @@ func InitializeRoutes(router *chi.Mux) {
 		app.Get("/thoughts", kit.Handler(handlers.HandleThoughtsIndex))
 		app.Get("/tools", kit.Handler(handlers.HandleToolsIndex))
 		app.Get("/robots.txt", kit.Handler(handlers.HandleRobotsTxt))
+
+		app.Get("/poetry", kit.Handler(handlers.HandleConsequencesIndex))
+
+		app.Post("/poetry/room", kit.Handler(handlers.HandleCreateRoom))
+		app.Get("/poetry/room/{code}", kit.Handler(handlers.HandleGetRoomIndex))
+		app.Post("/poetry/room/join", kit.Handler(handlers.HandleJoinRoom))
+		app.Get("/poetry/room/{code}/poem", kit.Handler(handlers.HandleGetAvailablePoem))
+		app.Post("/poetry/room/{code}/poem/{poemid}", kit.Handler(handlers.HandlePoemSubmission))
+
+		app.Post("/poetry/poet", kit.Handler(handlers.HandleChoosePoet))
+		app.Get("/poetry/poet", kit.Handler(handlers.HandleGetPoet))
+		app.Get("/poetry/poet/auth", kit.Handler(handlers.HandleGetPoetAuth))
+
 	})
 
 	// Authenticated routes

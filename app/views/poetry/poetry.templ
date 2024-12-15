@@ -1,0 +1,23 @@
+package poetry
+
+import (
+	"pierre/app/views/layouts"
+)
+
+templ PoetryConsequences() {
+	@layouts.ConsquencesLayout() {
+		<div
+			hx-get="/poetry/poet"
+			hx-trigger="tokenObtained from:body"
+			hx-swap="outerHTML"
+		></div>
+	}
+}
+
+templ PoetryRoom(roomCode string) {
+	@layouts.ConsquencesLayout() {
+		<form hx-post="/poetry/room/join" hx-trigger="load" hx-swap="outerHTML">
+			<input id="roomCode" name="roomCode" type="text" value={ roomCode }/>
+		</form>
+	}
+}

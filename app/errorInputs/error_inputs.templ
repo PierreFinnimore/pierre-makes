@@ -1,0 +1,13 @@
+package errorInputs
+
+func InputAttrs(hasError bool) templ.Attributes {
+	class := ""
+	if hasError {
+		class += " border-red-500"
+	} else {
+		class += " border-input"
+	}
+	return templ.Attributes{
+		"class": class,
+	}
+}

@@ -12,7 +12,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-serif;
   }
 
   @layer base {
@@ -67,7 +67,7 @@
   transition: border-width 0.1s ease-in-out, color 0.1s ease-in-out,
     background-color 0.1s ease-in-out;
 
-  @apply bg-muted text-muted-foreground font-bold py-2 px-4 border-b-4 border-t-4 border-t-background;
+  @apply bg-muted text-muted-foreground font-sans font-bold py-2 px-4 border-b-4 border-t-4 border-t-background;
 }
 .btn:not(:disabled, .disabled) {
   @apply hover:border-b-8 hover:border-t-0 focus:border-b-8 focus:border-t-0 active:border-b-0 active:border-t-8;
@@ -80,19 +80,23 @@
   @apply bg-red-700 hover:bg-red-600 text-white font-bold  border-b-red-900;
 }
 
+input {
+  @apply border-4 p-2 text-black;
+}
+
 :disabled,
 .disabled {
   @apply cursor-default pointer-events-none border-b-0 border-t-8;
 }
 
 p {
-  @apply mb-4 leading-7 font-serif;
+  @apply mb-4;
 }
 
 h1,
 h2,
 h3 {
-  @apply font-extrabold tracking-tight;
+  @apply font-extrabold tracking-tight font-sans;
 }
 
 h1 {

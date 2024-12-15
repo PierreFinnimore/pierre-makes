@@ -44,10 +44,8 @@ watch-assets:
 
 # run esbuild to generate the index.js bundle in watch mode.
 watch-esbuild:
-	npx esbuild app/assets/index.js --bundle --outdir=public/assets --watch
+	npx esbuild app/assets/*.js --bundle --outdir=public/assets --watch
 
-watch-tool:
-	npx esbuild app/assets/die.js --bundle --outdir=public/assets --watch
 
 
 copy-static-files:
@@ -65,7 +63,7 @@ sync_assets:
 
 # start the application in development
 dev:
-	@make -j7 copy-static-files templ server watch-assets watch-esbuild watch-tool sync_assets
+	make -j7 copy-static-files templ server watch-assets watch-esbuild sync_assets
 
 # build the application for production. This will compile your app
 # to a single binary with all its assets embedded.
@@ -84,19 +82,19 @@ build-linux:
 	@echo "compiled you application with all its assets to a single binary => bin/app_prod"
 
 db-status:
-	@GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) go run github.com/pressly/goose/v3/cmd/goose@latest status
+	@set GOOSE_DRIVER=$(DB_DRIVER)&& set GOOSE_DBSTRING=$(DB_NAME)&& go run github.com/pressly/goose/v3/cmd/goose@latest status
 
 db-reset:
-	@GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) go run github.com/pressly/goose/v3/cmd/goose@latest -dir=$(MIGRATION_DIR) reset
+	@set GOOSE_DRIVER=$(DB_DRIVER)&& set GOOSE_DBSTRING=$(DB_NAME)&& go run github.com/pressly/goose/v3/cmd/goose@latest -dir=$(MIGRATION_DIR) reset
 
 db-down:
-	@GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) go run github.com/pressly/goose/v3/cmd/goose@latest -dir=$(MIGRATION_DIR) down
+	@set GOOSE_DRIVER=$(DB_DRIVER)&& set GOOSE_DBSTRING=$(DB_NAME)&& go run github.com/pressly/goose/v3/cmd/goose@latest -dir=$(MIGRATION_DIR) down
 
 db-up:
-	@GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) go run github.com/pressly/goose/v3/cmd/goose@latest -dir=$(MIGRATION_DIR) up
+	@set GOOSE_DRIVER=$(DB_DRIVER)&& set GOOSE_DBSTRING=$(DB_NAME)&& go run github.com/pressly/goose/v3/cmd/goose@latest -dir=$(MIGRATION_DIR) up
 
 db-mig-create:
-	@GOOSE_DRIVER=$(DB_DRIVER) GOOSE_DBSTRING=$(DB_NAME) go run github.com/pressly/goose/v3/cmd/goose@latest -dir=$(MIGRATION_DIR) create $(filter-out $@,$(MAKECMDGOALS)) sql
+	@set GOOSE_DRIVER=$(DB_DRIVER)&& set GOOSE_DBSTRING=$(DB_NAME)&& go run github.com/pressly/goose/v3/cmd/goose@latest -dir=$(MIGRATION_DIR) create $(filter-out $@,$(MAKECMDGOALS)) sql
 
 db-seed:
 	@go run cmd/scripts/seed/main.go

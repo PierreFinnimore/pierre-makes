@@ -1,6 +1,6 @@
 package types
 
-type Poem struct {
+type PersonalPoem struct {
 	Title      string
 	Paragraphs []string
 }

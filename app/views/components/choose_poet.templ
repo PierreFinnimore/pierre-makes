@@ -1,0 +1,51 @@
+package components
+
+import (
+	v "github.com/anthdm/superkit/validate"
+	"pierre/app/types"
+	e "pierre/app/errorInputs"
+)
+
+templ ChoosePoet(values types.PoetFormValues, errors v.Errors) {
+	<form hx-post="/poetry/poet" hx-disabled-elt="this" hx-swap="outerHTML" class="mb-4">
+		<div class="flex gap-2 flex-wrap items-end">
+			<div class="flex flex-col">
+				<label class="py-2" for="poetName">Poet Name</label>
+				<input { e.InputAttrs(errors.Has("poetName"))... } id="poetName" name="poetName" type="text" type="text" value={ values.PoetName }/>
+			</div>
+			<button type="submit" class="btn btn-primary">Choose</button>
+		</div>
+		if errors.Has("poetName") {
+			<div class="text-red-500 text-xs">{ errors.Get("poetName")[0] }</div>
+		}
+	</form>
+}
+
+templ CreateOrJoinGame(values types.RoomFormValues, errors v.Errors) {
+	<div class="create-game">
+		<div class="flex flex-wrap items-start gap-3 flex-col sm:flex-row">
+			<form hx-post="/poetry/room/join" hx-target="closest .create-game" hx-disabled-elt="this" hx-swap="outerHTML" class="flex gap-2 flex-wrap items-start flex-col sm:flex-row">
+				<div>
+					<div>
+						<label class="py-2" for="roomCode">Game Code</label>
+					</div>
+					<div>
+						<input { e.InputAttrs(errors.Has("roomCode"))... } id="roomCode" name="roomCode" type="text" value={ values.RoomCode }/>
+						if errors.Has("roomCode") {
+							<div class="text-red-500 text-xs">{ errors.Get("roomCode")[0] }</div>
+						}
+					</div>
+				</div>
+				<button type="submit" class="btn btn-primary sm:mt-6">Join Game</button>
+			</form>
+			<form hx-post="/poetry/room" hx-target="closest .create-game" hx-disabled-elt="this" hx-swap="outerHTML" class="sm:mt-6">
+				<button type="submit" class="btn btn-primary">Create Game</button>
+			</form>
+		</div>
+	</div>
+}
+
+templ GetPoet(poetValues types.PoetFormValues, poetErrors v.Errors, roomValues types.RoomFormValues, roomErrors v.Errors) {
+	@ChoosePoet(poetValues, poetErrors)
+	@CreateOrJoinGame(roomValues, roomErrors)
+}

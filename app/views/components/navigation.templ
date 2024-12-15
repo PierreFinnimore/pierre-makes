@@ -1,7 +1,9 @@
 package components
 
 templ NavLink(href templ.SafeURL, label string) {
-	<a  href={ href } class="btn btn-primary" @click="selectedHref = $el.getAttribute('href')"  :class="selectedHref !== $el.getAttribute('href') ? '' : 'disabled'">{ label }</a>
+	<span class="inline-flex min-h-12">
+		<a href={ href } class="btn btn-primary" @click="selectedHref = $el.getAttribute('href')" :class="selectedHref !== $el.getAttribute('href') ? '' : 'disabled'">{ label }</a>
+	</span>
 }
 
 templ Navigation() {

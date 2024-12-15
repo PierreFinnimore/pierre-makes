@@ -6,14 +6,14 @@ import (
 	"pierre/app/types"
 )
 
-templ Art(poems []types.Poem, stories []types.Poem) {
+templ Art(poems []types.PersonalPoem, stories []types.PersonalPoem) {
 	@layouts.App() {
 		<h1>Art</h1>
 		<p>If you are reading this, you should make some art too!</p>
 		<h2 id="visuals">Visuals</h2>
 		@components.Image("kitten.jpg", "A kitten playing with a heart made of yarn through a ribcage", 1024, 1024, "large-image")
-		@components.Image("dogs.jpg", "Two dogs expectantly sitting on a sofa", 1327, 1327,"large-image")
-		@components.Image("flowers.jpg", "Many pastel-coloured flowers", 1013, 506,"large-image")
+		@components.Image("dogs.jpg", "Two dogs expectantly sitting on a sofa", 1327, 1327, "large-image")
+		@components.Image("flowers.jpg", "Many pastel-coloured flowers", 1013, 506, "large-image")
 		<h2 id="poems">Poems</h2>
 		<div class="whitespace-pre-line">
 			for _, poem := range poems {
