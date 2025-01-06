@@ -642,6 +642,10 @@ body {
   left: 0.25rem;
 }
 
+.right-0 {
+  right: 0px;
+}
+
 .right-1 {
   right: 0.25rem;
 }
@@ -663,12 +667,20 @@ body {
   margin-right: auto;
 }
 
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
 .mb-4 {
   margin-bottom: 1rem;
 }
 
 .mb-8 {
   margin-bottom: 2rem;
+}
+
+.me-2 {
+  margin-inline-end: 0.5rem;
 }
 
 .ml-4 {
@@ -685,6 +697,10 @@ body {
 
 .mt-4 {
   margin-top: 1rem;
+}
+
+.block {
+  display: block;
 }
 
 .flex {
@@ -717,6 +733,10 @@ body {
 
 .w-14 {
   width: 3.5rem;
+}
+
+.w-5 {
+  width: 1.25rem;
 }
 
 .w-full {
@@ -787,6 +807,10 @@ body {
 
 .justify-center {
   justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
 }
 
 .gap-1 {
@@ -864,6 +888,20 @@ body {
 .bg-primary {
   --tw-bg-opacity: 1;
   background-color: hsl(var(--primary) / var(--tw-bg-opacity));
+}
+
+.bg-secondary {
+  --tw-bg-opacity: 1;
+  background-color: hsl(var(--secondary) / var(--tw-bg-opacity));
+}
+
+.bg-secondary-foreground {
+  --tw-bg-opacity: 1;
+  background-color: hsl(var(--secondary-foreground) / var(--tw-bg-opacity));
+}
+
+.p-2 {
+  padding: 0.5rem;
 }
 
 .p-4 {
@@ -1095,6 +1133,28 @@ input {
   border-top-width: 8px;
 }
 
+input:disabled,
+input.disabled {
+  pointer-events: none;
+  cursor: default;
+  border-bottom-width: 4px;
+  border-top-width: 4px;
+}
+
+.loading-bar {
+  animation: expandWidth 3s forwards;
+}
+
+@keyframes expandWidth {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
 p {
   margin-bottom: 1rem;
 }
@@ -1192,8 +1252,8 @@ img {
 }
 
 @media (min-width: 640px) {
-  .sm\:mt-6 {
-    margin-top: 1.5rem;
+  .sm\:mt-10 {
+    margin-top: 2.5rem;
   }
 
   .sm\:flex-row {
