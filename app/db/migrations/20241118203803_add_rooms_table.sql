@@ -5,7 +5,8 @@ create table if not exists rooms(
 	code string not null,
 	lines_per_submission integer not null,
     lines_visible integer not null,
-    seconds_per_submission integer not null
+    seconds_per_submission integer not null,
+	minimum_line_distance integer not null
 );
 -- +goose StatementEnd
 
