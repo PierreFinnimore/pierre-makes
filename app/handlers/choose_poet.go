@@ -70,6 +70,8 @@ func HandleGetPoet(kit *kit.Kit) error {
 	var poetErrors = v.Errors{}
 
 	var roomValues types.RoomFormValues
+	roomValues.MinimumLineDistance = 1
+	roomValues.PoemCount = 2
 	var roomErrors = v.Errors{}
 
 	var poetToken = kit.Request.Header.Get("poet_token")

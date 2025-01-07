@@ -3,6 +3,7 @@ package components
 import (
 	v "github.com/anthdm/superkit/validate"
 	"pierre/app/types"
+	"strconv"
 	e "pierre/app/errorInputs"
 )
 
@@ -23,23 +24,33 @@ templ ChoosePoet(values types.PoetFormValues, errors v.Errors) {
 
 templ CreateOrJoinGame(values types.RoomFormValues, errors v.Errors) {
 	<div class="create-game">
-		<div class="flex flex-wrap items-start gap-3 flex-col sm:flex-row">
+		<div class="flex flex-wrap items-start gap-3 flex-col">
 			<form hx-post="/poetry/room/join" hx-target="closest .create-game" hx-disabled-elt="this" hx-swap="outerHTML" class="flex gap-2 flex-wrap items-start flex-col sm:flex-row">
 				<div>
-					<div>
-						<label class="py-2" for="roomCode">Game Code</label>
-					</div>
-					<div>
-						<input { e.InputAttrs(errors.Has("roomCode"))... } id="roomCode" name="roomCode" type="text" value={ values.RoomCode }/>
-						if errors.Has("roomCode") {
-							<div class="text-red-500 text-xs">{ errors.Get("roomCode")[0] }</div>
-						}
-					</div>
+					<label class="block py-2" for="roomCode">Game Code</label>
+					<input { e.InputAttrs(errors.Has("roomCode"))... } id="roomCode" name="roomCode" type="text" value={ values.RoomCode }/>
+					if errors.Has("roomCode") {
+						<div class="text-red-500 text-xs">{ errors.Get("roomCode")[0] }</div>
+					}
 				</div>
-				<button type="submit" class="btn btn-primary sm:mt-6">Join Game</button>
+				<button type="submit" class="btn btn-primary sm:mt-10">Join Game</button>
 			</form>
-			<form hx-post="/poetry/room" hx-target="closest .create-game" hx-disabled-elt="this" hx-swap="outerHTML" class="sm:mt-6">
-				<button type="submit" class="btn btn-primary">Create Game</button>
+			<form hx-post="/poetry/room" hx-target="closest .create-game" hx-disabled-elt="this" hx-swap="outerHTML" class="flex gap-2 flex-wrap items-start flex-col sm:flex-row">
+				<div>
+					<label class="block py-2" for="poemCount">Poem Count</label>
+					<input { e.InputAttrs(errors.Has("poemCount"))... } id="poemCount" name="poemCount" type="number" min="1" max="10" value={ strconv.Itoa(values.PoemCount) }/>
+					if errors.Has("poemCount") {
+						<div class="text-red-500 text-xs">{ errors.Get("poemCount")[0] }</div>
+					}
+				</div>
+				<div>
+					<label class="block py-2" for="minimumLineDistance">Minimum Line Distance</label>
+					<input { e.InputAttrs(errors.Has("minimumLineDistance"))... } id="minimumLineDistance" name="minimumLineDistance" min="1" max="10" type="number" value={ strconv.Itoa(values.MinimumLineDistance) }/>
+					if errors.Has("minimumLineDistance") {
+						<div class="text-red-500 text-xs">{ errors.Get("minimumLineDistance")[0] }</div>
+					}
+				</div>
+				<button type="submit" class="btn btn-primary sm:mt-10">Create Game</button>
 			</form>
 		</div>
 	</div>

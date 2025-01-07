@@ -3,40 +3,38 @@ package components
 import (
 	"pierre/app/types"
 	"fmt"
+	"time"
+	e "pierre/app/errorInputs"
+	v "github.com/anthdm/superkit/validate"
 )
 
 templ WaitForPoem(room types.Room, triggerOnLoad bool) {
 	<div
 		hx-get={ `/poetry/room/` + room.Code + `/poem` }
+		hx-swap="outerHTML"
 		if triggerOnLoad {
 			hx-trigger="load"
 		} else {
 			hx-trigger="every 3s"
 		}
-		hx-swap="outerHTML"
 	>
 		@RoomCode(room.Code)
 		<div class="py-4">Waiting for a free poem...</div>
+		<div class="bg-muted"><div class="p-2 loading-bar bg-secondary-foreground"></div></div>
 	</div>
 }
 
 templ RoomCode(code string) {
-	<div class="mb-4">
+	<div class="mb-4" x-data="{ selectedHref: window.location.pathname }">
 		@NavLink("/poetry", "Play Another Game")
 	</div>
 	<h3>Room Code: <span>{ code }</span></h3>
 }
 
-templ LineSubmission(visibleLines []types.Line, room types.Room, poem types.Poem) {
+templ LineSubmission(values types.SubmissionFormTwoLineValues, errors v.Errors, visibleLines []types.Line, room types.Room, poem types.Poem) {
 	<div class="line-submission">
 		@RoomCode(room.Code)
-		<p>Lines so far: { fmt.Sprintf("%d", len(poem.Submissions) * room.LinesPerSubmission) }</p>
-		<form hx-target="closest .line-submission" hx-swap="outerHTML" hx-post={ `/poetry/room/` + room.Code + `/poem/` + fmt.Sprintf("%d", poem.PoemID) } class="flex flex-col gap-2 ">
-			for idx, _ := range visibleLines {
-				<div>
-					{ visibleLines[idx].Text }
-				</div>
-			}
+		<div class="mb-2 text-muted-foreground flex justify-between flex-wrap gap-2">
 			<div>
 				Write the
 				if len(poem.Submissions) == 0 {
@@ -46,10 +44,34 @@ templ LineSubmission(visibleLines []types.Line, room types.Room, poem types.Poem
 				}
 				{ fmt.Sprintf("%d", room.LinesPerSubmission) } lines:
 			</div>
-			for idx := 0; idx < room.LinesPerSubmission; idx++ {
-				<input id={ fmt.Sprintf("line%d", idx) } name={ fmt.Sprintf("line%d", idx) } type="text"/>
+			<div
+				x-data={ fmt.Sprintf("{ remainingTime: %d, reservedUntil: %d }", max(0, poem.ReservedUntilTimestamp-time.Now().Unix()), poem.ReservedUntilTimestamp) }
+				x-init="setInterval(()=>{ 
+					const now = new Date().getTime() / 1000;
+					const remainingTime =  Math.floor($data.reservedUntil - now);
+					$data.remainingTime = remainingTime > 0 ? remainingTime : 0;
+				}, 1000)"
+			>
+				Poem reserved for: <span class="inline-flex w-5" x-text="remainingTime"></span> seconds
+			</div>
+			<div>Lines so far: { fmt.Sprintf("%d", len(poem.Submissions) * room.LinesPerSubmission) }</div>
+		</div>
+		<form hx-target="closest .line-submission" hx-swap="outerHTML" hx-post={ `/poetry/room/` + room.Code + `/poem/` + fmt.Sprintf("%d", poem.PoemID) } class="flex flex-col gap-2 ">
+			for idx, _ := range visibleLines {
+				<input disabled readonly type="text" value={ visibleLines[idx].Text }/>
 			}
-			if len(poem.Submissions) > 5 {
+			<input { e.InputAttrs(errors.Has("line0"))... } id="line0" name="line0" type="text" value={ values.Line0 }/>
+			if errors.Has("line0") {
+				<div class="text-red-500 text-xs">{ errors.Get("line0")[0] }</div>
+			}
+			<input { e.InputAttrs(errors.Has("line1"))... } id="line1" name="line1" type="text" value={ values.Line1 }/>
+			if errors.Has("line1") {
+				<div class="text-red-500 text-xs">{ errors.Get("line1")[0] }</div>
+			}
+			if errors.Has("lastLine") {
+				<div class="text-red-500 text-xs">{ errors.Get("lastLine")[0] }</div>
+			}
+			if len(poem.Submissions) >= 5 {
 				<div>
 					<label for="lastLine">
 						if room.LinesPerSubmission == 1 {
@@ -58,7 +80,11 @@ templ LineSubmission(visibleLines []types.Line, room types.Room, poem types.Poem
 							Are these the last lines?
 						}
 					</label>
-					<input id="lastLine" name="lastLine" type="checkbox"/>
+					<input
+						id="lastLine"
+						name="lastLine"
+						type="checkbox"
+					/>
 				</div>
 			}
 			<button type="submit" class="btn btn-primary">Submit</button>
@@ -67,7 +93,7 @@ templ LineSubmission(visibleLines []types.Line, room types.Room, poem types.Poem
 }
 
 templ ViewCompletedPoems(poems []types.Poem) {
-	<div class="mb-4">
+	<div class="mb-4" x-data="{ selectedHref: window.location.pathname }">
 		@NavLink("/poetry", "Play Another Game")
 	</div>
 	<div>
@@ -76,11 +102,21 @@ templ ViewCompletedPoems(poems []types.Poem) {
 			for idx := range poems {
 				<div class="border p-4 flex flex-col gap-1">
 					<h3>Poem { fmt.Sprintf("%d", idx + 1) }</h3>
-					for jdx := range poems[idx].Submissions {
-						for kdx := range poems[idx].Submissions[jdx].Lines {
-							<div>{ poems[idx].Submissions[jdx].Lines[kdx].Text }</div>
+					<div>
+						for jdx := range poems[idx].Submissions {
+							<span x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
+								<div class="relative">
+									<div class="bg-secondary p-2 absolute right-0 me-2" x-show="open" @mouseenter="open = true" @mouseleave="open = false">
+										Poet: { poems[idx].Submissions[jdx].Poet.Name }
+									</div>
+								</div>
+								for kdx := range poems[idx].Submissions[jdx].Lines {
+									{ poems[idx].Submissions[jdx].Lines[kdx].Text }
+									<br/>
+								}
+							</span>
 						}
-					}
+					</div>
 				</div>
 			}
 		</div>

@@ -71,8 +71,14 @@ func HandleGetAvailablePoem(kit *kit.Kit) error {
 	err = db.Query.NewSelect().Model(&allPoems).
 		Relation("Submissions").
 		Relation("Submissions.Lines").
+		Relation("Submissions.Poet").
 		Where("room_id = ?", room.RoomID).
-		Where("reserved_until_timestamp < ?", now).
+		WhereGroup(" AND ", func(q *bun.SelectQuery) *bun.SelectQuery {
+			q.WhereOr("reserved_poet_id = ?", existingPoet.PoetID).
+				WhereOr("reserved_until_timestamp < ?", now).
+				WhereOr("reserved_poet_id IS NULL")
+			return q
+		}).
 		Scan(kit.Request.Context())
 
 	if err != nil {
@@ -80,13 +86,16 @@ func HandleGetAvailablePoem(kit *kit.Kit) error {
 	}
 
 	var incompletePoems []types.Poem
+	var completedCount = 0
 	for idx := range allPoems {
-		if !allPoems[idx].IsComplete {
+		if allPoems[idx].IsComplete {
+			completedCount += 1
+		} else {
 			incompletePoems = append(incompletePoems, allPoems[idx])
 		}
 	}
 
-	if len(incompletePoems) == 0 && len(allPoems) != 0 {
+	if completedCount == len(allPoems) {
 		return kit.Render(components.ViewCompletedPoems(allPoems))
 	}
 
@@ -96,13 +105,14 @@ func HandleGetAvailablePoem(kit *kit.Kit) error {
 		})
 	}
 
-	// TODO(pierre): Make this find an actually good poem:
-
 	var bestIndex = -1
 	var highestScore = 0.0
+	var userPreviouslyReserved = false
 	for idx, poem := range incompletePoems {
-		if poem.ReservedPoetID == &existingPoet.PoetID {
+
+		if poem.ReservedPoetID != nil && *poem.ReservedPoetID == existingPoet.PoetID {
 			bestIndex = idx
+			userPreviouslyReserved = true
 			break
 		}
 
@@ -112,8 +122,10 @@ func HandleGetAvailablePoem(kit *kit.Kit) error {
 		}
 
 		var distance = 0.0
-		for _, submission := range poem.Submissions {
-			if submission.PoetID == existingPoet.PoetID {
+		var userHasSubmittedToThisPoem = false
+		for i := len(poem.Submissions) - 1; i >= 0; i-- {
+			if poem.Submissions[i].PoetID == existingPoet.PoetID {
+				userHasSubmittedToThisPoem = true
 				break
 			}
 			distance += 1.0
@@ -121,12 +133,12 @@ func HandleGetAvailablePoem(kit *kit.Kit) error {
 
 		var isGreaterThanMinimumDistance = false
 		var freshPoemBonus = 0.0
-		if len(poem.Submissions) == 0 {
+		if !userHasSubmittedToThisPoem {
 			isGreaterThanMinimumDistance = true
 			freshPoemBonus = 2.0
 		}
-		const MIN_DISTANCE = 0.0
-		if distance > MIN_DISTANCE {
+
+		if distance >= float64(room.MinimumLineDistance) {
 			isGreaterThanMinimumDistance = true
 		}
 
@@ -147,6 +159,12 @@ func HandleGetAvailablePoem(kit *kit.Kit) error {
 
 	var reservedUntilTimestamp = time.Now().Add(time.Duration(room.SecondsPerSubmission) * time.Second).Unix()
 
+	if userPreviouslyReserved {
+		reservedUntilTimestamp = targetPoem.ReservedUntilTimestamp
+	} else {
+		targetPoem.ReservedUntilTimestamp = reservedUntilTimestamp
+	}
+
 	_, err = db.Query.NewUpdate().Model(&targetPoem).
 		Set("reserved_poet_id = ?", existingPoet.PoetID).
 		Set("reserved_until_timestamp = ?", reservedUntilTimestamp).
@@ -164,26 +182,17 @@ func HandleGetAvailablePoem(kit *kit.Kit) error {
 		return kit.Render(components.WaitForPoem(room, false))
 	}
 
-	return kit.Render(components.LineSubmission(lines, room, targetPoem))
+	return kit.Render(components.LineSubmission(types.SubmissionFormTwoLineValues{}, v.Errors{}, lines, room, targetPoem))
 }
 
 func HandlePoemSubmission(kit *kit.Kit) error {
 	var roomCode string = chi.URLParam(kit.Request, "code")
 	var poemID string = chi.URLParam(kit.Request, "poemid")
 
-	var values types.SubmissionFormTwoLineValues
-	_, ok := v.Request(kit.Request, &values, v.Schema{
-		"line0":    v.Rules(v.Min(1), v.Max(200)),
-		"line1":    v.Rules(v.Min(1), v.Max(200)),
-		"lastLine": v.Rules(v.Required),
-	})
-	if !ok {
-		fmt.Printf("BAD")
-		// TODO(pierre): handle validation failure
-	}
+	var err error
 
 	var existingPoet *types.Poet
-	var err error
+
 	existingPoet, err = getPoetFromRequest(kit)
 	if err != nil {
 		return err
@@ -206,6 +215,24 @@ func HandlePoemSubmission(kit *kit.Kit) error {
 
 	if err != nil {
 		return err
+	}
+
+	var values types.SubmissionFormTwoLineValues
+	errors, ok := v.Request(kit.Request, &values, v.Schema{
+		"line0":    v.Rules(v.Min(1), v.Max(200)),
+		"line1":    v.Rules(v.Min(1), v.Max(200)),
+		"lastLine": v.Rules(),
+	})
+
+	if !ok {
+		var lines []types.Line
+		lines, err = getLines(kit, poem, room)
+
+		if err != nil {
+			return err
+		}
+
+		return kit.Render(components.LineSubmission(values, errors, lines, room, poem))
 	}
 
 	var highestPosition = -1
@@ -278,26 +305,38 @@ func HandleCreateRoom(kit *kit.Kit) error {
 	var errors = v.Errors{}
 	var existingPoet, err = getPoetFromRequest(kit)
 	var values types.RoomFormValues
+
 	if err != nil {
 		errors.Add("Token", "No poet exists")
 		return kit.Render(components.CreateOrJoinGame(values, errors))
 	}
 
-	var room, roomErr = createRoom(kit, *existingPoet)
+	errors, ok := v.Request(kit.Request, &values, v.Schema{
+		"poemCount":           v.Rules(v.GTE(1), v.LTE(10)),
+		"minimumLineDistance": v.Rules(v.GTE(1), v.LTE(10)),
+		"roomCode":            v.Rules(),
+	})
+	if !ok {
+		return kit.Render(components.CreateOrJoinGame(values, errors))
+	}
+
+	var room, roomErr = createRoom(kit, values, *existingPoet)
 	if roomErr != nil {
 		errors.Add("Creation", "Could not create room")
 		return kit.Render(components.CreateOrJoinGame(values, errors))
 	}
 
+	kit.Response.Header().Add("HX-Push-Url", "/poetry/room/"+room.Code)
+
 	return kit.Render(components.WaitForPoem(room, true))
 }
 
-const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
+const charset = "abcdefghijklmnopqrstuvwxyz"
 
 func GenerateRandomCode(length int) string {
 	code := make([]byte, length)
 	for i := range code {
-		code[i] = charset[rand.Intn(len(charset))] // Select a random character from the charset
+		code[i] = charset[rand.Intn(len(charset))]
 	}
 	return string(code)
 }
@@ -312,7 +351,7 @@ func getRoomByCode(kit *kit.Kit, code string) (types.Room, error) {
 	return room, err
 }
 
-func createRoom(kit *kit.Kit, _poet types.Poet) (types.Room, error) {
+func createRoom(kit *kit.Kit, values types.RoomFormValues, _poet types.Poet) (types.Room, error) {
 
 	var uniqueCode string
 	var found = true
@@ -330,6 +369,7 @@ func createRoom(kit *kit.Kit, _poet types.Poet) (types.Room, error) {
 		LinesPerSubmission:   2,
 		LinesVisible:         1,
 		SecondsPerSubmission: 90,
+		MinimumLineDistance:  values.MinimumLineDistance,
 	}
 
 	if found {
@@ -344,9 +384,10 @@ func createRoom(kit *kit.Kit, _poet types.Poet) (types.Room, error) {
 		return room, err
 	}
 
-	var poems = []types.Poem{
-		{RoomID: room.RoomID, ReservedPoetID: nil, IsComplete: false},
-		{RoomID: room.RoomID, ReservedPoetID: nil, IsComplete: false},
+	var poems = []types.Poem{}
+
+	for range values.PoemCount {
+		poems = append(poems, types.Poem{RoomID: room.RoomID, ReservedPoetID: nil, IsComplete: false})
 	}
 
 	_, err = db.Query.NewInsert().Model(&poems).Exec(kit.Request.Context())

@@ -5,7 +5,9 @@ type PoetFormValues struct {
 }
 
 type RoomFormValues struct {
-	RoomCode string `form:"roomCode"`
+	RoomCode            string `form:"roomCode"`
+	PoemCount           int    `form:"poemCount"`
+	MinimumLineDistance int    `form:"minimumLineDistance"`
 }
 
 type SubmissionFormTwoLineValues struct {
@@ -26,15 +28,16 @@ type Room struct {
 	LinesPerSubmission   int    `bun:"lines_per_submission,notnull"`
 	LinesVisible         int    `bun:"lines_visible,notnull"`
 	SecondsPerSubmission int    `bun:"seconds_per_submission,notnull"`
+	MinimumLineDistance  int    `bun:"minimum_line_distance,notnull"`
 }
 
 type Poem struct {
 	PoemID                 int           `bun:"poem_id,pk,autoincrement"`
-	ReservedPoetID         *int          `bun:"reserved_poet_id,null"` // Use pointer to allow null values
+	ReservedPoetID         *int          `bun:"reserved_poet_id"`
 	ReservedPoet           *Poet         `bun:"rel:has-one,join:reserved_poet_id=poet_id"`
 	RoomID                 int           `bun:"room_id,notnull"` // Non-pointer int to ensure RoomID is not null
 	Room                   *Room         `bun:"rel:has-one,join:room_id=room_id"`
-	ReservedUntilTimestamp int64         `bun:"reserved_until_timestamp,null"` // Use int64 for timestamp
+	ReservedUntilTimestamp int64         `bun:"reserved_until_timestamp"`
 	IsComplete             bool          `bun:"is_complete,default:false"`
 	Submissions            []*Submission `bun:"rel:has-many,join:poem_id=poem_id"`
 }
