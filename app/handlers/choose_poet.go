@@ -19,6 +19,7 @@ func HandleChoosePoet(kit *kit.Kit) error {
 	var values types.PoetFormValues
 	errors, ok := v.Request(kit.Request, &values, poetFormSchema)
 	if !ok {
+		errors.Add("token", "Something went wrong choosing poet")
 		return kit.Render(components.ChoosePoet(values, errors))
 	}
 
