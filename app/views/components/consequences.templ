@@ -25,7 +25,7 @@ templ WaitForPoem(room types.Room, triggerOnLoad bool) {
 }
 
 templ RoomCode(code string) {
-	<div class="mb-4" x-data="{ selectedHref: window.location.pathname }">
+	<div class="mb-4">
 		@NavLink("/poetry", "Play Another Game")
 	</div>
 	<h3>Room Code: <span>{ code }</span></h3>
@@ -93,7 +93,7 @@ templ LineSubmission(values types.SubmissionFormTwoLineValues, errors v.Errors, 
 }
 
 templ ViewCompletedPoems(poems []types.Poem) {
-	<div class="mb-4" x-data="{ selectedHref: window.location.pathname }">
+	<div class="mb-4">
 		@NavLink("/poetry", "Play Another Game")
 	</div>
 	<div>

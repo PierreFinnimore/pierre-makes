@@ -4,7 +4,7 @@ import "pierre/app/views/components"
 
 templ App() {
 	@BaseLayout() {
-		<div class="min-h-screen flex flex-col scrollbar-adjustment">
+		<div class="min-h-screen flex flex-col scrollbar-adjustment" x-data="{ selectedHref: window.location.pathname }">
 			@components.Navigation()
 			<div id="main-content" class="max-w-3xl container mx-auto flex-grow">
 				{ children... }
